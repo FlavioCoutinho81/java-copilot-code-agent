@@ -14,6 +14,7 @@ Container_Boundary(webApp, "Spring Boot Web Application") {
     
     Component(activityEntity, "Activity Entity", "Domain Model", "Core activity business logic")
     Component(teacherEntity, "Teacher Entity", "Domain Model", "Core teacher business logic")
+    Component(activityType, "ActivityType", "Value Object", "Activity categorization with colors")
     
     Component(activityRepo, "Activity Repository", "Data Access", "Activity data persistence")
     Component(teacherRepo, "Teacher Repository", "Data Access", "Teacher data persistence")
@@ -31,6 +32,7 @@ Rel(activityUseCase, activityEntity, "Uses")
 Rel(authUseCase, teacherEntity, "Uses")
 Rel(registrationUseCase, activityEntity, "Uses")
 Rel(registrationUseCase, teacherEntity, "Uses")
+Rel(activityEntity, activityType, "Uses")
 
 Rel(activityUseCase, activityRepo, "Uses")
 Rel(authUseCase, teacherRepo, "Uses")

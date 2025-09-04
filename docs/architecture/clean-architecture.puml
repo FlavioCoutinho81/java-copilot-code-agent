@@ -18,6 +18,7 @@ package "Application Layer" {
 package "Domain Layer" {
     [Activity Entity]
     [Teacher Entity]
+    [ActivityType Value Object]
     [Email Value Object]
     [Schedule Details Value Object]
     [Repository Interfaces]
@@ -55,6 +56,7 @@ database "MongoDB" {
 
 [Activity Entity] --> [Email Value Object] : uses
 [Activity Entity] --> [Schedule Details Value Object] : uses
+[Activity Entity] --> [ActivityType Value Object] : uses
 
 note right of [Repository Interfaces]
     Dependency Inversion:

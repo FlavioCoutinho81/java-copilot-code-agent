@@ -27,20 +27,25 @@ src/main/java/com/mergingtonhigh/schoolmanagement/
 │   │   ├── ActivityRepository.java
 │   │   └── TeacherRepository.java
 │   └── valueobjects/         # Objetos de valor
+│       ├── ActivityType.java       # ✨ Novo: Categorização de atividades
 │       ├── Email.java        # Validação de email
 │       └── ScheduleDetails.java # Detalhes de horário
 ├── application/              # 🔧 Camada de Aplicação
 │   ├── dtos/                 # Data Transfer Objects
 │   │   ├── ActivityDTO.java
+│   │   ├── ActivityTypeDTO.java    # ✨ Novo: Tipos de atividade
+│   │   ├── LoginRequestDTO.java    # ✨ Novo: Request de login
 │   │   ├── StudentRegistrationDTO.java
 │   │   └── TeacherDTO.java
 │   └── usecases/             # Casos de uso
 │       ├── ActivityUseCase.java
+│       ├── AuthenticationUseCase.java  # ✨ Novo: Autenticação
 │       └── StudentRegistrationUseCase.java
 ├── infrastructure/           # 🏭 Camada de Infraestrutura
 │   ├── config/               # Configurações
 │   ├── migrations/           # Migrações do banco
-│   │   └── V001_InitialDatabaseSetup.java
+│   │   ├── V001_InitialDatabaseSetup.java
+│   │   └── V002_AddMangaManiacsClub.java    # ✨ Novo: Clube Manga Maniacs
 │   └── persistence/          # Implementações de repositório
 │       ├── ActivityRepositoryImpl.java
 │       ├── MongoActivityRepository.java
@@ -48,7 +53,9 @@ src/main/java/com/mergingtonhigh/schoolmanagement/
 │       └── TeacherRepositoryImpl.java
 └── presentation/             # 🎨 Camada de Apresentação
     ├── controllers/          # Controllers REST
-    │   └── ActivityController.java
+    │   ├── ActivityController.java
+    │   ├── AuthController.java     # ✨ Novo: Autenticação
+    │   └── StaticController.java   # ✨ Novo: Conteúdo estático
     └── mappers/              # Mapeadores DTO ↔ Entity
         ├── ActivityMapper.java
         └── TeacherMapper.java
@@ -97,6 +104,31 @@ src/main/java/com/mergingtonhigh/schoolmanagement/
   - Horários e dias da semana
   - Capacidade máxima
   - Lista de participantes
+  - **✨ Tipo/Categoria da atividade** com cores visuais
+
+### 🏷️ Categorização de Atividades
+
+O sistema agora categoriza automaticamente as atividades em 5 tipos principais:
+
+- **🏃 Esportes** (SPORTS): Atividades físicas, jogos em equipe, fitness
+  - Cor: Verde claro (#e8f5e9) com texto verde escuro (#2e7d32)
+  - Exemplos: Futebol, Basquete, Fitness
+
+- **🎨 Artes** (ARTS): Atividades criativas e culturais
+  - Cor: Roxo claro (#f3e5f5) com texto roxo escuro (#7b1fa2)
+  - Exemplos: Teatro, Música, Manga Maniacs
+
+- **📚 Acadêmico** (ACADEMIC): Atividades educacionais e competitivas
+  - Cor: Azul claro (#e3f2fd) com texto azul escuro (#1565c0)
+  - Exemplos: Olimpíada de Matemática, Clube de Ciências
+
+- **🤝 Comunidade** (COMMUNITY): Atividades de serviço e voluntariado
+  - Cor: Laranja claro (#fff3e0) com texto laranja escuro (#e65100)
+  - Exemplos: Trabalho voluntário, Projetos comunitários
+
+- **💻 Tecnologia** (TECHNOLOGY): Atividades relacionadas à tecnologia
+  - Cor: Índigo claro (#e8eaf6) com texto índigo escuro (#3949ab)
+  - Exemplos: Programação, Robótica, Computação
 
 ### 👨‍🏫 Sistema de Autenticação
 
@@ -180,6 +212,17 @@ GET /activities?day=Monday&start_time=15:00&end_time=17:00
 GET /activities/days
 ```
 
+#### ✨ Autenticação
+
+```http
+POST /auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=teacher1&password=secret
+
+GET /auth/check-session?username=teacher1
+```
+
 #### Inscrições
 
 ```http
@@ -192,6 +235,53 @@ POST /activities/{activityName}/unregister
 Content-Type: application/x-www-form-urlencoded
 
 email=student@mergington.edu&teacher_username=teacher1
+```
+
+### Exemplo de Resposta - ✨ Estrutura Atualizada
+
+#### GET /activities
+
+```json
+{
+  "Chess Club": {
+    "name": "Chess Club",
+    "description": "Desenvolva estratégia e pensamento crítico...",
+    "schedule": "Mondays and Wednesdays, 15:30 - 17:00",
+    "scheduleDetails": {
+      "days": ["Monday", "Wednesday"],
+      "startTime": "15:30",
+      "endTime": "17:00"
+    },
+    "maxParticipants": 20,
+    "participants": ["student1@mergington.edu"],
+    "currentParticipantCount": 1,
+    "type": {
+      "name": "ACADEMIC",
+      "label": "Acadêmico",
+      "color": "#e3f2fd",
+      "textColor": "#1565c0"
+    }
+  },
+  "Manga Maniacs": {
+    "name": "Manga Maniacs",
+    "description": "Mergulhe no incrível universo dos mangás japoneses!...",
+    "schedule": "Terças-feiras, 19:00 - 20:00",
+    "scheduleDetails": {
+      "days": ["Tuesday"],
+      "startTime": "19:00",
+      "endTime": "20:00"
+    },
+    "maxParticipants": 15,
+    "participants": [],
+    "currentParticipantCount": 0,
+    "type": {
+      "name": "ARTS",
+      "label": "Artes",
+      "color": "#f3e5f5",
+      "textColor": "#7b1fa2"
+    }
+  }
+}
 ```
 
 ## 🧪 Testes
@@ -231,9 +321,10 @@ O sistema utiliza **Mongock** para realizar migrações automáticas do banco de
 
 ### Atividades Exemplo
 
-- **Art Club** - Terças e quintas, 15:30-17:00
-- **Chess Club** - Segundas e quartas, 15:30-17:00
-- **Drama Club** - Quartas e sextas, 16:00-18:00
+- **Art Club** - Terças e quintas, 15:30-17:00 (Tipo: ARTS)
+- **Chess Club** - Segundas e quartas, 15:30-17:00 (Tipo: ACADEMIC)
+- **Drama Club** - Quartas e sextas, 16:00-18:00 (Tipo: ARTS)
+- **✨ Manga Maniacs** - Terças, 19:00-20:00 (Tipo: ARTS) - *Novo clube para exploração da cultura manga japonesa*
 
 ## 🔒 Segurança
 

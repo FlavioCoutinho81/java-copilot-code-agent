@@ -2,6 +2,8 @@
 
 Sistema de gestão de atividades extracurriculares desenvolvido com Spring Boot e arquitetura limpa (Clean Architecture).
 
+> **📋 Última Atualização**: Esta documentação foi atualizada para refletir as funcionalidades mais recentes, incluindo categorização automática de atividades, sistema de autenticação aprimorado e novos endpoints.
+
 ## 📋 Visão Geral
 
 O **School Management System** é uma aplicação web que permite o gerenciamento de atividades extracurriculares da Mergington High School. O sistema possibilita que professores administrem atividades e que estudantes se inscrevam nelas através de uma interface web intuitiva.
@@ -130,11 +132,25 @@ O sistema agora categoriza automaticamente as atividades em 5 tipos principais:
   - Cor: Índigo claro (#e8eaf6) com texto índigo escuro (#3949ab)
   - Exemplos: Programação, Robótica, Computação
 
+#### Categorização Automática
+
+O sistema possui um algoritmo inteligente que categoriza automaticamente as atividades baseado em palavras-chave do nome e descrição:
+
+- **Palavras-chave de Esportes**: futebol, basquete, esporte, fitness, equipe, time, jogo, atlético
+- **Palavras-chave de Artes**: arte, música, teatro, drama, criativo, pintura, manga
+- **Palavras-chave Acadêmicas**: ciência, matemática, acadêmico, estudo, olimpíada, aprendizado, educação
+- **Palavras-chave de Comunidade**: voluntário, comunidade, serviço
+- **Palavras-chave de Tecnologia**: computador, programação, tecnologia, robótica, digital, robô
+
+> **Nota**: Se nenhuma palavra-chave for encontrada, a atividade é categorizada como "Acadêmico" por padrão.
+
 ### 👨‍🏫 Sistema de Autenticação
 
-- **Login de professores** com username/senha
+- **Login de professores** com username/senha via `/auth/login`
+- **Verificação de sessão** via `/auth/check-session`
 - **Controle de acesso** baseado em roles (TEACHER/ADMIN)
-- **Autenticação requerida** para inscrições
+- **Autenticação requerida** para inscrições e cancelamentos
+- **Criptografia Argon2** para senhas seguras
 
 ### 📝 Gestão de Inscrições
 
@@ -215,26 +231,44 @@ GET /activities/days
 #### ✨ Autenticação
 
 ```http
+# Login do professor
 POST /auth/login
 Content-Type: application/x-www-form-urlencoded
 
-username=teacher1&password=secret
+username=mrodriguez&password=art123
 
-GET /auth/check-session?username=teacher1
+# Resposta de sucesso:
+{
+  "username": "mrodriguez",
+  "name": "Sr. Rodriguez",
+  "role": "TEACHER"
+}
+
+# Verificar sessão
+GET /auth/check-session?username=mrodriguez
+
+# Resposta de sucesso:
+{
+  "username": "mrodriguez", 
+  "name": "Sr. Rodriguez",
+  "role": "TEACHER"
+}
 ```
 
 #### Inscrições
 
 ```http
+# Inscrever estudante em atividade
 POST /activities/{activityName}/signup
 Content-Type: application/x-www-form-urlencoded
 
-email=student@mergington.edu&teacher_username=teacher1
+email=student@mergington.edu&teacher_username=mrodriguez
 
+# Cancelar inscrição
 POST /activities/{activityName}/unregister
 Content-Type: application/x-www-form-urlencoded
 
-email=student@mergington.edu&teacher_username=teacher1
+email=student@mergington.edu&teacher_username=mrodriguez
 ```
 
 ### Exemplo de Resposta - ✨ Estrutura Atualizada
@@ -315,9 +349,11 @@ O sistema utiliza **Mongock** para realizar migrações automáticas do banco de
 
 ### Professores Padrão
 
-- **admin** - Administrador principal
-- **teacher.rodriguez** - Professor de artes
-- **teacher.chen** - Professor de xadrez
+- **mrodriguez** (Sr. Rodriguez) - Professor de artes, senha padrão: `art123`
+- **mchen** (Sra. Chen) - Professora de xadrez, senha padrão: `chess123`  
+- **principal** (Diretor Martinez) - Administrador principal, senha padrão: `admin123`
+
+> **Nota**: As senhas podem ser configuradas via variáveis de ambiente: `TEACHER_RODRIGUEZ_PASSWORD`, `TEACHER_CHEN_PASSWORD`, `PRINCIPAL_PASSWORD`
 
 ### Atividades Exemplo
 
@@ -344,3 +380,27 @@ O sistema utiliza **Mongock** para realizar migrações automáticas do banco de
 ### Perfis de Ambiente
 
 - **dev** - Ambiente de desenvolvimento
+
+## 📝 Changelog
+
+### ✨ Novas Funcionalidades Recentes
+
+#### 🏷️ Sistema de Categorização de Atividades
+- **ActivityType Enum**: Categorização automática em 5 tipos (SPORTS, ARTS, ACADEMIC, COMMUNITY, TECHNOLOGY)
+- **Cores personalizadas** para cada tipo de atividade na interface
+- **Algoritmo inteligente** de categorização baseado em palavras-chave
+
+#### 🔐 Sistema de Autenticação Aprimorado  
+- **Novos endpoints** `/auth/login` e `/auth/check-session`
+- **DTOs dedicados** para requisições de login
+- **Verificação de sessão** para validação de estado de autenticação
+
+#### 🎭 Nova Atividade: Manga Maniacs
+- **Migração V002**: Adicionada atividade focada em cultura manga japonesa
+- **Horário especializado**: Terças-feiras, 19:00-20:00
+- **Categoria**: Artes com descrição envolvente
+
+#### 📊 Estrutura de Resposta da API Atualizada
+- **ActivityDTO aprimorado** com informações de tipo e cores
+- **Dados mais ricos** para renderização na interface
+- **Compatibilidade mantida** com versões anteriores

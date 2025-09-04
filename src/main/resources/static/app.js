@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
-  let currentDifficulty = "";
+  let currentDifficulty = null; // null means no difficulty filter applied
 
   // Authentication state
   let currentUser = null;
@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Aplicar filtro de dificuldade
-      if (currentDifficulty) {
+      if (currentDifficulty !== null) {
         if (currentDifficulty === "") {
           // "Todos" - mostrar apenas atividades sem nível específico
           if (details.difficultyLevel) {
@@ -398,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
-      // Se nenhum filtro de dificuldade estiver aplicado, mostrar todas as atividades
+      // Se currentDifficulty for null, nenhum filtro de dificuldade está ativo - mostrar todas as atividades
 
       // Aplicar filtro de fim de semana se selecionado
       if (currentTimeRange === "weekend" && details.scheduleDetails) {
